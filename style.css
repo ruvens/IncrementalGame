@@ -36,7 +36,7 @@ kbd { background: var(--panel2); border: 1px solid var(--line); border-radius: 4
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   padding: 14px 20px; border-bottom: 1px solid var(--line);
   background: rgba(11, 13, 26, .75); backdrop-filter: blur(8px);
-  position: sticky; top: 0; z-index: 10;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
 }
 .top h1 { margin: 0; font-size: 22px; letter-spacing: .5px; font-weight: 800; }
 .top h1 span { color: var(--echo); }
@@ -63,7 +63,7 @@ main {
   .tabs-panel { grid-column: 1 / -1; }
 }
 @media (max-width: 700px) {
-  main { grid-template-columns: 1fr; padding: 10px; }
+  main { grid-template-columns: 1fr; padding: 16px; }
   .top { padding: 10px 16px; }
   .cur { min-width: 0; flex: 1; }
 }
