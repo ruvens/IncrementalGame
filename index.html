@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chronoloop</title>
+<meta name="description" content="A time-loop incremental game. Gather moments, rewind, keep your echoes.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="flash"></div>
+
+<header class="top">
+  <h1>Chrono<span>loop</span></h1>
+  <div class="currencies">
+    <div class="cur moments"><label>Moments</label><b id="c-moments">0</b><small id="c-mps">0/s</small></div>
+    <div class="cur echoes"><label>Echoes</label><b id="c-echoes">0</b><small id="c-pending">+0 on rewind</small></div>
+    <div class="cur shards hidden" id="cur-shards"><label>Paradox Shards</label><b id="c-shards">0</b><small id="c-shardinfo"></small></div>
+  </div>
+</header>
+
+<main>
+  <!-- Clock column -->
+  <section class="panel clock-panel">
+    <div class="loop-label">Loop <b id="loop-num">1</b></div>
+    <div class="clock-wrap">
+      <svg id="clock" viewBox="0 0 220 220" aria-hidden="true">
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--echo)"/>
+            <stop offset="100%" stop-color="var(--moment)"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="110" cy="110" r="96"/>
+        <g class="ticks" id="ticks"></g>
+        <circle class="ring" id="ring" cx="110" cy="110" r="96"/>
+        <line class="hand" id="hand" x1="110" y1="110" x2="110" y2="26"/>
+      </svg>
+      <button id="gather" class="gather" title="Gather moments (Space)">
+        <span class="g-title">Gather</span>
+        <span class="g-val" id="click-val">+1</span>
+      </button>
+      <div id="particles"></div>
+    </div>
+    <div class="time-left"><b id="time-left">20.0s</b> left in loop</div>
+    <div class="loop-stats">
+      <div><span>This loop</span><b id="loop-moments">0</b></div>
+      <div><span title="A loop that runs out on its own always gives at least 1 echo">Echoes on rewind</span><b id="pending">0</b></div>
+      <div><span>Next echo at</span><b id="next-echo">-</b></div>
+    </div>
+    <button id="rewind" class="btn rewind">⟲ Rewind now</button>
+    <div class="history">
+      <div class="history-title">Echoes from recent loops</div>
+      <div id="history-bars" class="bars"></div>
+    </div>
+    <div id="ghost-info" class="ghost-info hidden"></div>
+  </section>
+
+  <!-- Generators -->
+  <section class="panel gens-panel">
+    <div class="panel-head">
+      <h2>Timepieces</h2>
+      <div class="buy-amt" id="buy-amt">
+        <button data-amt="1" class="on">x1</button>
+        <button data-amt="10">x10</button>
+        <button data-amt="max">Max</button>
+      </div>
+    </div>
+    <p class="hint">Timepieces reset each loop. Every 25 of a kind doubles its output.</p>
+    <div id="gens"></div>
+  </section>
+
+  <!-- Tabs -->
+  <section class="panel tabs-panel">
+    <nav class="tabs" id="tabs">
+      <button data-tab="echo" class="on">Echoes</button>
+      <button data-tab="paradox" id="tab-paradox-btn" class="hidden">Paradox</button>
+      <button data-tab="feats">Feats <span id="feat-count"></span></button>
+      <button data-tab="stats">Stats</button>
+      <button data-tab="options">Options</button>
+    </nav>
+
+    <div class="tab on" id="tab-echo">
+      <p class="hint">Echoes carry over between loops. Spend them on permanent upgrades.</p>
+      <div id="echo-upgrades" class="upgrades"></div>
+    </div>
+
+    <div class="tab" id="tab-paradox">
+      <div class="paradox-box">
+        <p>Collapse the timeline: lose all echoes and echo upgrades, and gain <b>Paradox Shards</b>.
+          Shards you have ever earned permanently multiply echo gains by <b>√(1 + shards)</b>.</p>
+        <div class="progress"><div id="paradox-prog"></div></div>
+        <div class="progress-label" id="paradox-label"></div>
+        <button id="paradox-btn" class="btn paradox" disabled>Collapse timeline</button>
+      </div>
+      <div id="paradox-upgrades" class="upgrades"></div>
+    </div>
+
+    <div class="tab" id="tab-feats">
+      <p class="hint">Each feat permanently gives +3% moment production.</p>
+      <div id="feats" class="feats"></div>
+    </div>
+
+    <div class="tab" id="tab-stats">
+      <table class="stats" id="stats"></table>
+    </div>
+
+    <div class="tab" id="tab-options">
+      <div class="opts">
+        <label class="opt"><span>Number notation</span>
+          <select id="opt-notation">
+            <option value="suffix">Suffix (1.23M)</option>
+            <option value="sci">Scientific (1.23e6)</option>
+          </select>
+        </label>
+        <label class="opt"><span>Click particles</span><input type="checkbox" id="opt-particles"></label>
+        <label class="opt"><span>Rewind flash</span><input type="checkbox" id="opt-flash"></label>
+        <div class="opt-btns">
+          <button class="btn" id="btn-save">Save now</button>
+          <button class="btn" id="btn-export">Export save</button>
+          <button class="btn" id="btn-import">Import save</button>
+          <button class="btn danger" id="btn-reset">Hard reset</button>
+        </div>
+        <textarea id="save-text" rows="4" placeholder="Paste a save here, then click Import save." spellcheck="false"></textarea>
+        <p class="hint">The game saves automatically every 10 seconds. It keeps running offline for up to 2 hours.
+          Shortcuts: <kbd>Space</kbd> gather, <kbd>R</kbd> rewind, <kbd>1</kbd>–<kbd>7</kbd> buy timepieces.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toasts"></div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
